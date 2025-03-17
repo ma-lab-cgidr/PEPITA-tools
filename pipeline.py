@@ -62,7 +62,15 @@ def generate_plate_schematic(schematic, results, conversions=None, plate_info='[
 	for row_idx in range(height):
 		for col_idx in range(len(schematic[row_idx])):
 			solution = util.Solution(schematic[row_idx][col_idx], conversions)
-			result = results[solution].pop(0)
+			try:
+				result = results[solution].pop(0)
+			except IndexError as ie:
+				q = '"'
+				message = \
+					f'Condition {solution} ({", ".join([f"{q}{c}{q}" for c in solution])}) ' + \
+					'not found in remaining results. Make sure it does not contain any ' + \
+					'unexpected characters and is not equivalent to another condition.'
+				raise ValueError(message) from ie
 			label = re.sub(r'([A-Z])([A-Za-z])\w+\s?([\d./]+)?([A-Za-zμ ]+)?',
 				lambda m: f'{m.group(1)}{m.group(2).lower()}{m.group(3) if m.group(3) else ""}',
 				schematic[row_idx][col_idx])
